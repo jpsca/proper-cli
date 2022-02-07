@@ -81,8 +81,4 @@ class Cli(HelpMixin):
     def _run_command(self, cmd, args, opts):
         if HELP_OPT in opts:
             return self._help_command(cmd)
-        try:
-            return cmd(*args, **opts)
-        except TypeError as err:
-            self._echo(f"\n<error> {err} </error>")
-            self._help_command(cmd)
+        return cmd(*args, **opts)
