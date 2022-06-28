@@ -3,8 +3,7 @@ import textwrap
 
 
 HELP_OPT = "help"
-INDENT_WITH = "  "
-COL_SIZE = 12
+INDENT = 2
 
 
 def get_doc(cmd):
@@ -55,7 +54,7 @@ class HelpMixin:
 
     @property
     def _indent(self):
-        return INDENT_WITH * self._indent_level
+        return " " * INDENT * self._indent_level
 
     def _help(self, header=True):
         self._help_intro()
@@ -85,7 +84,7 @@ class HelpMixin:
             self._help_list_subcommand(name, cls)
 
     def _help_list_subcommand(self, name, cls):
-        self._echo(f"\n {self._indent}<fg=cyan>{name.ljust(COL_SIZE)}</>")
+        self._echo(f"\n {self._indent}<fg=cyan>{name}</>")
         cli = self._init_subcommand(name, cls, indent_level=self._indent_level + 1)
         cli._help_body()
 
@@ -93,7 +92,8 @@ class HelpMixin:
         doc = cmd.__doc__ or ""
         cmd_help = doc.strip().split("\n")[0]
         self._echo(
-            f" {self._indent}<fg=light_green>{name.ljust(COL_SIZE)}</> {cmd_help}"
+            f" {self._indent}<fg=light_green>{name}</>\n"
+            f" {' ' * INDENT * 5}{cmd_help}"
         )
 
     def _help_command(self, cmd):

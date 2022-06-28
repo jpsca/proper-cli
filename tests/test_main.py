@@ -58,15 +58,20 @@ def test_main_help(get_out_text):
    Run any command with the --help option for more information.
 
  Available Commands:
-   a            AAA
-   b            BBB
+   a
+           AAA
+   b
+           BBB
 
    foo
-     bar          BAR
+     bar
+           BAR
 
    lorem
-     ipsum        IPSUM
-     sit          SIT
+     ipsum
+           IPSUM
+     sit
+           SIT
 
 """ == get_out_text()
 
@@ -86,8 +91,10 @@ def test_subcommand_help(get_out_text):
    Run any command with the --help option for more information.
 
  Available Commands:
-   ipsum        IPSUM
-   sit          SIT
+   ipsum
+           IPSUM
+   sit
+           SIT
 
 """ == get_out_text()
 
