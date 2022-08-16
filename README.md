@@ -1,6 +1,6 @@
 # Proper CLI
 
-Proper CLI is a Python package for creating beautiful, composable, and ridiculously good looking command-line-**user**-interfaces without having to write any extra code.
+Proper CLI is a Python library for creating composable, nestable, and ridiculously good looking command-line-**user**-interfaces from simple classes.
 
 - Made for interfacing with humans.
 - Arbitrary nesting and composition of commands.
