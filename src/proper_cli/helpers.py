@@ -1,4 +1,7 @@
-def ask(question, default=None, alternatives=None):
+import typing as t
+
+
+def ask(question: str, default: t.Any = None, alternatives: str = "") -> t.Any:
     """Ask a question via input() and return their answer.
 
     Arguments:
@@ -16,11 +19,16 @@ def ask(question, default=None, alternatives=None):
             return default
 
 
-YES_CHOICES = ("y", "yes", "t", "true", "on", "1")
-NO_CHOICES = ("n", "no", "f", "false", "off", "0")
+YES_CHOICES: tuple[str, ...] = ("y", "yes", "t", "true", "on", "1")
+NO_CHOICES: tuple[str, ...] = ("n", "no", "f", "false", "off", "0")
 
 
-def confirm(question, default=False, yes_choices=YES_CHOICES, no_choices=NO_CHOICES):
+def confirm(
+    question: str,
+    default: bool = False,
+    yes_choices: t.Sequence[str] = YES_CHOICES,
+    no_choices: t.Sequence[str] = NO_CHOICES,
+) -> bool:
     """Ask a yes/no question via proper_cli.ask() and return their answer.
 
     Arguments:

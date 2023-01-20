@@ -41,7 +41,7 @@ class MyCli(Cli):
         """Simple program that greets NAME for a total of COUNT times."""
         pass
 
-    # A subcommand!
+    # A group!
     db = DBCli
 
 

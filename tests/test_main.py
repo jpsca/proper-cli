@@ -63,20 +63,18 @@ def test_main_help(get_out_text):
    b
            BBB
 
-   foo
-     bar
+   foo bar
            BAR
 
-   lorem
-     ipsum
+   lorem ipsum
            IPSUM
-     sit
+   lorem sit
            SIT
 
 """ == get_out_text()
 
 
-def test_subcommand_help(get_out_text):
+def test_subgroup_help(get_out_text):
     cli = Manager()
     sys.argv = ["manage.py", "lorem"]
     cli()
@@ -91,9 +89,9 @@ def test_subcommand_help(get_out_text):
    Run any command with the --help option for more information.
 
  Available Commands:
-   ipsum
+   lorem ipsum
            IPSUM
-   sit
+   lorem sit
            SIT
 
 """ == get_out_text()

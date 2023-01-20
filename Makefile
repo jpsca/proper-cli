@@ -1,16 +1,20 @@
 .PHONY: test
 test:
-	pytest -x proper_cli tests
+	poetry run pytest -x src/proper_cli tests
 
 .PHONY: lint
 lint:
-	flake8 --config=setup.cfg proper_cli tests
+	poetry run flake8 src/proper_cli tests
 
 .PHONY: coverage
 coverage:
-	pytest --cov-report html --cov proper_cli proper_cli tests
+	poetry run pytest --cov-config=pyproject.toml --cov-report html --cov proper_cli src/proper_cli tests
+
+.PHONY: types
+types:
+	poetry run pyright src/proper_cli
 
 .PHONY: install
 install:
-	pip install -e .[test,dev]
-	# pre-commit install --hook-type pre-push
+	poetry install --with dev,test
+	poetry run pre-commit install

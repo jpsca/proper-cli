@@ -58,9 +58,9 @@ python run.py first -arg1 -no-arg2
 ```
 
 
-### Subcommands
+### Subgroups
 
-If an attribute is a subclass of `proper_cli.Cli`, it will be a subcommand:
+If an attribute is a subclass of `proper_cli.Cli`, it will be a subgroup:
 
 ```python
 from proper_cli import Cli
@@ -70,7 +70,7 @@ class DBSub(Cli):
         pass
 
 class Manage(Cli):
-    # A subcommand
+    # A subgroup
     db = DBSub  # NOT `DBSub()`
 ```
 
@@ -137,7 +137,7 @@ class MyCli(Cli):
         """Simple program that greets NAME for a total of COUNT times."""
         pass
 
-    # A subcommand!
+    # A subgroup!
     db = DBCli
 
 
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
 ## Coloring the Output
 
-Whenever you output text, you can surround the text with tags to color its output.
+Whenever you output text, you can surround the text with tags to color its output (thanks to https://github.com/sdispater/pastel).
 This is automatically enabled for the docstrings, but you can also have it by using `proper_cli.echo()`
 as a drop-in replacement of `print()`.
 

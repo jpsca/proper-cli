@@ -1,7 +1,12 @@
+import typing as t
+
+
 NEGATIVE_FLAG_PREFIX = "no-"
 
 
-def parse_args(cliargs):  # noqa: C901
+def parse_args(
+    cliargs: t.Sequence[str],
+) -> tuple[list[str], dict[str, t.Any]]:  # noqa: C901
     """Parse the command line arguments and return a list of the positional
     arguments and a dictionary with the named ones.
 
@@ -10,6 +15,9 @@ def parse_args(cliargs):  # noqa: C901
 
         >>> parse_args(["-abc"])
         ([], {'abc': True})
+
+        >>> parse_args(["-no-abc"])
+        ([], {'abc': False})
 
         >>> parse_args(["-f", "1", "-f", "2", "-f", "3"])
         ([], {'f': ['1', '2', '3']})
@@ -57,7 +65,7 @@ def parse_args(cliargs):  # noqa: C901
         if kwargs.get(flag):
             continue
         if flag.startswith(NEGATIVE_FLAG_PREFIX):
-            flag = flag[len(NEGATIVE_FLAG_PREFIX):]
+            flag = flag[len(NEGATIVE_FLAG_PREFIX) :]
             kwargs[flag] = False
         else:
             kwargs[flag] = True
@@ -65,7 +73,7 @@ def parse_args(cliargs):  # noqa: C901
     return args, kwargs
 
 
-def is_key(sarg):
+def is_key(sarg: str) -> bool:
     """Check if `sarg` is a key (eg. -foo, --foo) or a negative number (eg. -33)."""
     if not sarg.startswith("-"):
         return False
