@@ -219,7 +219,7 @@ class Cli:
         if parent:
             parent = f"<fg=green>{parent}</> "
 
-        signature =  f"{parent}<fg=light_green>{name}</>"
+        signature = f"{parent}<fg=light_green>{name}</>"
 
         if self._show_params:
             params = self._get_params(cmd)
