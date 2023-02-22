@@ -237,6 +237,6 @@ class Cli:
             elif pp.default in (True, False):
                 params.append(f"[--{name}]")
             else:
-                params.append(f"[--{name}={pp.default}]")
+                params.append(f"[--{name}={repr(pp.default)}]")
 
         return " ".join(params)
