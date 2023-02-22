@@ -51,8 +51,9 @@ def get_doc(cmd: t.Callable) -> str:
 
 
 class Cli:
-    _indent_level: int
     _parent: str
+    _indent_level: int
+    _show_params: bool
     _echo: t.Callable
     _env: dict
 
@@ -61,10 +62,12 @@ class Cli:
         *,
         parent: str = "",
         indent_level: int = INDENT_START_LEVEL,
+        show_params: bool = True,
         **env,
     ) -> None:
         self._parent = parent
         self._indent_level = indent_level
+        self._show_params = show_params
         self._echo = echo
         self._env = env
 
@@ -120,7 +123,7 @@ class Cli:
 
         if isclass(cmd):
             return self._run_subgroup(name, cmd, args, opts)
-        return self._run_command(cmd, args, opts)
+        return self._run_command(name, cmd, args, opts)
 
     def _command_not_found(self, name: str) -> None:
         self._echo(f"\n<error> Command `{name}` not found </error>")
@@ -135,6 +138,7 @@ class Cli:
         return cls(
             parent=f"{self._parent} {name}",
             indent_level=indent_level,
+            show_params=self._show_params,
             **self._env,
         )
 
@@ -153,12 +157,13 @@ class Cli:
 
     def _run_command(
         self,
+        name: str,
         cmd: t.Callable,
         args: list[str],
         opts: dict[str, t.Any],
     ) -> None:
         if HELP_OPT in opts:
-            return self._help_command(cmd)
+            return self._help_command(name, cmd)
         return cmd(*args, **opts)
 
     def _help(self, header: bool = True) -> None:
@@ -174,13 +179,13 @@ class Cli:
             self._echo(f"\n{intro}")
 
     def _help_header(self) -> None:
-        self._echo("\n <fg=yellow>Usage:</>")
+        self._echo("\n <fg=yellow>Usage:</>\n")
         self._echo(f" {self._indent}{self._parent} <command> [args] [options]\n")
         self._echo(
             f" {self._indent}"
             "Run any command with the --help option for more information."
         )
-        self._echo("\n <fg=yellow>Available Commands:</>")
+        self._echo("\n <fg=yellow>Available Commands:</>\n")
 
     def _help_body(self) -> None:
         for name, cmd in self._commands.items():
@@ -196,18 +201,42 @@ class Cli:
     def _help_list_command(self, name: str, cmd: t.Callable) -> None:
         doc = cmd.__doc__ or ""
         cmd_help = doc.strip().split("\n")[0]
+        signature = self._get_signature(name, cmd)
 
-        indent = self._indent
+        self._echo(
+            f" {self._indent}{signature}\n"
+            f" {INDENT * 5}{cmd_help}"
+        )
+
+    def _help_command(self, name: str, cmd: t.Callable) -> None:
+        signature = self._get_signature(name, cmd)
+        doc = textwrap.indent(get_doc(cmd), " ")
+
+        self._echo(f"\n{self._indent}{signature}\n\n{doc}")
+
+    def _get_signature(self, name: str, cmd: t.Callable) -> str:
         parent = " ".join(self._parent.split(" ")[1:])
         if parent:
             parent = f"<fg=green>{parent}</> "
 
-        self._echo(
-            f" {indent}{parent}<fg=light_green>{name}</>\n"
-            f" {INDENT * 5}{cmd_help}"
-        )
+        signature =  f"{parent}<fg=light_green>{name}</>"
 
-    def _help_command(self, cmd: t.Callable) -> None:
-        print()
-        doc = get_doc(cmd)
-        self._echo(textwrap.indent(doc, " "))
+        if self._show_params:
+            params = self._get_params(cmd)
+            signature = f"{signature} <fg=dark_gray>{params}</>"
+
+        return signature
+
+    def _get_params(self, cmd: t.Callable) -> str:
+        sig = inspect.signature(cmd)
+        params = []
+
+        for name, pp in sig.parameters.items():
+            if pp.default is pp.empty:
+                params.append(name)
+            elif pp.default in (True, False):
+                params.append(f"[--{name}]")
+            else:
+                params.append(f"[--{name}={pp.default}]")
+
+        return " ".join(params)

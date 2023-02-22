@@ -13,7 +13,7 @@ class Lorem(Cli):
     """Lorem ipsum is placeholder text commonly used for previewing
     layouts and visual mockups."""
 
-    def ipsum(self):
+    def ipsum(self, x, y=3):
         """IPSUM
 
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -23,7 +23,7 @@ class Lorem(Cli):
         """
         pass
 
-    def sit(self):
+    def sit(self, meh=False):
         """SIT"""
         pass
 
@@ -53,11 +53,45 @@ def test_main_help(get_out_text):
  Hello World!
 
  Usage:
+
    manage <command> [args] [options]
 
    Run any command with the --help option for more information.
 
  Available Commands:
+
+   a
+           AAA
+   b
+           BBB
+
+   foo bar
+           BAR
+
+   lorem ipsum x [--y=3]
+           IPSUM
+   lorem sit [--meh]
+           SIT
+
+""" == get_out_text()
+
+
+def test_disable_params(get_out_text):
+    cli = Manager(show_params=False)
+    sys.argv = ["manage.py", "--help"]
+    cli()
+
+    assert """
+ Hello World!
+
+ Usage:
+
+   manage <command> [args] [options]
+
+   Run any command with the --help option for more information.
+
+ Available Commands:
+
    a
            AAA
    b
@@ -84,11 +118,38 @@ def test_subgroup_help(get_out_text):
  layouts and visual mockups.
 
  Usage:
+
    manage lorem <command> [args] [options]
 
    Run any command with the --help option for more information.
 
  Available Commands:
+
+   lorem ipsum x [--y=3]
+           IPSUM
+   lorem sit [--meh]
+           SIT
+
+""" == get_out_text()
+
+
+def test_disble_params_in_subgroup_help(get_out_text):
+    cli = Manager(show_params=False)
+    sys.argv = ["manage.py", "lorem"]
+    cli()
+
+    assert """
+ Lorem ipsum is placeholder text commonly used for previewing
+ layouts and visual mockups.
+
+ Usage:
+
+   manage lorem <command> [args] [options]
+
+   Run any command with the --help option for more information.
+
+ Available Commands:
+
    lorem ipsum
            IPSUM
    lorem sit
