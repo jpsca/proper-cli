@@ -117,9 +117,9 @@ envlist = py39,py310,py311
 
 [testenv]
 skip_install = true
+allowlist_externals = poetry
 commands =
     pip install -U pip wheel
-    pip install pytest
-    pip install -e .
+    poetry install --with test
     pytest -x src/proper_cli tests
 """
