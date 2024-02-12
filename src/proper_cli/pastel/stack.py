@@ -30,7 +30,7 @@ class StyleStack(object):
         self.reset()
 
     def reset(self):
-        self.styles = list()
+        self.styles = []
 
     def push(self, style):
         self.styles.append(style)

@@ -4,7 +4,7 @@ test:
 
 .PHONY: lint
 lint:
-	poetry run flake8 src/proper_cli tests
+	ruff check src/proper_cli tests
 
 .PHONY: coverage
 coverage:

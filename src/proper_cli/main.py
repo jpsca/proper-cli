@@ -8,15 +8,15 @@ from signal import SIGTERM, signal
 from sys import stderr
 
 from . import pastel
-from .pastel import add_style  # noqa
 from .parser import parse_args
+from .pastel import add_style  # noqa
 
 
 __all__ = ("echo", "add_style", "Cli")
 
-INDENT_START_LEVEL = 1
 HELP_OPT = "help"
 INDENT = "  "
+INITIAL_INDENT = " "
 
 
 def echo(*texts: str, sep: str = " ") -> None:
@@ -61,12 +61,16 @@ class Cli:
         self,
         *,
         parent: str = "",
-        indent_level: int = INDENT_START_LEVEL,
+        indent: str = INDENT,
+        initial_indent: str = INITIAL_INDENT,
+        indent_start: int = 0,
         show_params: bool = True,
         **env,
     ) -> None:
         self._parent = parent
-        self._indent_level = indent_level
+        self._indent_level = indent_start
+        self._indent_by = indent
+        self._indent_plus = initial_indent
         self._show_params = show_params
         self._echo = echo
         self._env = env
@@ -105,9 +109,9 @@ class Cli:
             subgroups[name] = cls
         return subgroups
 
-    @property
-    def _indent(self) -> str:
-        return INDENT * self._indent_level
+    def _indent(self, plus_level: int = 0) -> str:
+        level = self._indent_level + plus_level
+        return self._indent_plus + (self._indent_by * level)
 
     # Private
 
@@ -133,11 +137,11 @@ class Cli:
         self,
         name: str,
         cls: type,
-        indent_level: int = INDENT_START_LEVEL,
+        indent_level: int = 0   ,
     ) -> "Cli":
         return cls(
             parent=f"{self._parent} {name}",
-            indent_level=indent_level,
+            indent_start=indent_level,
             show_params=self._show_params,
             **self._env,
         )
@@ -175,20 +179,22 @@ class Cli:
     def _help_intro(self) -> None:
         doc = get_doc(self)
         if doc:
-            intro = textwrap.indent(doc.strip(), " ")
+            intro = textwrap.indent(doc.strip(), self._indent())
             self._echo(f"\n{intro}")
 
     def _help_header(self) -> None:
-        self._echo("\n <fg=yellow>Usage:</>\n")
-        self._echo(f" {self._indent}{self._parent} <command> [args] [options]\n")
+        self._echo(f"\n{self._indent()}<fg=yellow>Usage:</>\n")
+        self._echo(f"{self._indent(1)}{self._parent} <command> [args] [options]\n")
         self._echo(
-            f" {self._indent}"
+            f"{self._indent(1)}"
             "Run any command with the --help option for more information."
         )
-        self._echo("\n <fg=yellow>Available Commands:</>\n")
+        self._echo(f"\n{self._indent()}<fg=yellow>Available Commands:</>\n")
 
     def _help_body(self) -> None:
         for name, cmd in self._commands.items():
+            if name.startswith("_"):
+                continue
             self._help_list_command(name, cmd)
         for name, cls in self._subgroups.items():
             self._help_list_subgroup(name, cls)
@@ -204,15 +210,15 @@ class Cli:
         signature = self._get_signature(name, cmd)
 
         self._echo(
-            f" {self._indent}{signature}\n"
-            f" {INDENT * 5}{cmd_help}"
+            f"{self._indent(1)}{signature}\n"
+            f"{self._indent(2)}{cmd_help}"
         )
 
     def _help_command(self, name: str, cmd: t.Callable) -> None:
         signature = self._get_signature(name, cmd)
-        doc = textwrap.indent(get_doc(cmd), " ")
+        doc = textwrap.indent(get_doc(cmd), self._indent())
 
-        self._echo(f"\n{self._indent}{signature}\n\n{doc}")
+        self._echo(f"\n{self._indent()}{signature}\n\n{doc}")
 
     def _get_signature(self, name: str, cmd: t.Callable) -> str:
         parent = " ".join(self._parent.split(" ")[1:])
@@ -225,7 +231,7 @@ class Cli:
             params = self._get_params(cmd)
             signature = f"{signature} <fg=dark_gray>{params}</>"
 
-        return signature
+        return signature.strip()
 
     def _get_params(self, cmd: t.Callable) -> str:
         sig = inspect.signature(cmd)

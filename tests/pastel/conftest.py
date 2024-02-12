@@ -22,10 +22,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
 import pytest
-
 from proper_cli.pastel import Pastel
-from proper_cli.pastel.style import Style
 from proper_cli.pastel.stack import StyleStack
+from proper_cli.pastel.style import Style
 
 
 @pytest.fixture
