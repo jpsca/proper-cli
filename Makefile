@@ -4,7 +4,7 @@ test:
 
 .PHONY: lint
 lint:
-	ruff check src/proper_cli tests
+	poetry run ruff check src/proper_cli tests
 
 .PHONY: coverage
 coverage:
