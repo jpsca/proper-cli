@@ -211,7 +211,7 @@ class Cli:
 
         self._echo(
             f"{self._indent(1)}{signature}\n"
-            f"{self._indent(2)}{cmd_help}"
+            f"{self._indent(4)}{cmd_help}"
         )
 
     def _help_command(self, name: str, cmd: t.Callable) -> None:

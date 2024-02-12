@@ -64,17 +64,17 @@ def test_main_help(get_out_text):
  Available Commands:
 
    a
-     AAA
+         AAA
    b
-     BBB
+         BBB
 
    foo bar
-     BAR
+         BAR
 
    lorem ipsum x [--y=3]
-     IPSUM
+         IPSUM
    lorem sit [--meh]
-     SIT
+         SIT
 
 """
 
@@ -96,17 +96,17 @@ def test_disable_params(get_out_text):
  Available Commands:
 
    a
-     AAA
+         AAA
    b
-     BBB
+         BBB
 
    foo bar
-     BAR
+         BAR
 
    lorem ipsum
-     IPSUM
+         IPSUM
    lorem sit
-     SIT
+         SIT
 
 """
 
@@ -129,9 +129,9 @@ def test_subgroup_help(get_out_text):
  Available Commands:
 
    lorem ipsum x [--y=3]
-     IPSUM
+         IPSUM
    lorem sit [--meh]
-     SIT
+         SIT
 
 """
 
@@ -154,9 +154,9 @@ def test_disble_params_in_subgroup_help(get_out_text):
  Available Commands:
 
    lorem ipsum
-     IPSUM
+         IPSUM
    lorem sit
-     SIT
+         SIT
 
 """
 
