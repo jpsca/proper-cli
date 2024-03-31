@@ -2,8 +2,21 @@ from proper_cli.parser import parse_args
 
 
 def test_parse_args():
-    result = parse_args(["abc", "xy", "-w=3", "--foo", "bar", "-narf=zort"])
-    expected = (["abc", "xy"], {"foo": "bar", "w": "3", "narf": "zort"})
+    result = parse_args([
+        "abc",
+        "xy",
+        "meh:lorem=ipsum",
+        "-w=3",
+        "--foo",
+        "bar",
+        "-narf=zort",
+        "qwer=ty"
+    ])
+    expected = (
+        ["abc", "xy", "meh:lorem=ipsum"],
+        {"foo": "bar", "w": "3", "narf": ["zort", "qwer=ty"]},
+    )
+    print(result)
     assert result == expected
 
 

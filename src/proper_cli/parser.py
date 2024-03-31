@@ -26,8 +26,8 @@ def parse_args(
     # Split the "key=arg" arguments
     largs = []
     for arg in cliargs:
-        if "=" in arg:
-            key, arg = arg.split("=")
+        if "-" == arg[0] and "=" in arg:
+            key, arg = arg.split("=", 1)
             largs.append(key)
         largs.append(arg)
 
