@@ -35,6 +35,19 @@ def test_parse_complex_positional_args():
     assert result == expected
 
 
+
+def test_parse_positional_args_with_double_quotes():
+    args = [
+        "model",
+        'user:fk-User,backref:"tweets"',
+        "whatever"
+    ]
+    result = parse_args(args)
+    expected = (args, {})
+    print(result)
+    assert result == expected
+
+
 def test_parse_args_list():
     result = parse_args(["-f", "1", "-f", "2", "-f", "3"])
     expected = ([], {"f": ["1", "2", "3"]})
