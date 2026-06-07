@@ -60,6 +60,7 @@ def test_main_help(get_out_text):
    manage <command> [args] [options]
 
    Run any command with the --help option for more information.
+   All the options are optional and can be specified in any order.
 
  Available Commands:
 
@@ -71,9 +72,9 @@ def test_main_help(get_out_text):
    foo bar
          BAR
 
-   lorem ipsum x [--y=3]
+   lorem ipsum x --y=3
          IPSUM
-   lorem sit [--meh]
+   lorem sit --meh
          SIT
 
 """
@@ -92,6 +93,7 @@ def test_disable_params(get_out_text):
    manage <command> [args] [options]
 
    Run any command with the --help option for more information.
+   All the options are optional and can be specified in any order.
 
  Available Commands:
 
@@ -125,12 +127,13 @@ def test_subgroup_help(get_out_text):
    manage lorem <command> [args] [options]
 
    Run any command with the --help option for more information.
+   All the options are optional and can be specified in any order.
 
  Available Commands:
 
-   lorem ipsum x [--y=3]
+   lorem ipsum x --y=3
          IPSUM
-   lorem sit [--meh]
+   lorem sit --meh
          SIT
 
 """
@@ -150,6 +153,7 @@ def test_disble_params_in_subgroup_help(get_out_text):
    manage lorem <command> [args] [options]
 
    Run any command with the --help option for more information.
+   All the options are optional and can be specified in any order.
 
  Available Commands:
 
@@ -167,7 +171,7 @@ def test_command_help(get_out_text):
     cli()
 
     assert get_out_text() == """
- lorem ipsum x [--y=3]
+ lorem ipsum x --y=3
 
  IPSUM
 
@@ -185,7 +189,7 @@ def test_get_params_distinguishes_bool_from_int():
             """serve"""
 
     cli = C()
-    assert cli._get_params(cli.serve) == "host [--port=8000] [--workers=1] [--debug]"
+    assert cli._get_params(cli.serve) == ("host", "--port=8000 --workers=1 --debug")
 
 
 def test_hidden_command_has_help(get_out_text):
