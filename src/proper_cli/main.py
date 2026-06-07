@@ -54,7 +54,6 @@ class Cli:
     _parent: str
     _indent_level: int
     _show_params: bool
-    _echo: t.Callable
     _env: dict
 
     def __init__(
@@ -72,7 +71,6 @@ class Cli:
         self._indent_by = indent
         self._indent_plus = initial_indent
         self._show_params = show_params
-        self._echo = echo
         self._env = env
 
     def __call__(self) -> None:
@@ -109,11 +107,16 @@ class Cli:
             subgroups[name] = cls
         return subgroups
 
+    # Private
+
+    def _echo(self, *text: str, indentation: int = 0) -> None:
+        indent = self._indent(indentation)
+        for line in text:
+            echo(f"{indent}{line}")
+
     def _indent(self, plus_level: int = 0) -> str:
         level = self._indent_level + plus_level
         return self._indent_plus + (self._indent_by * level)
-
-    # Private
 
     def _run(self, *args, **opts) -> None:
         if not args:
@@ -136,7 +139,7 @@ class Cli:
         self,
         name: str,
         cls: type,
-        indent_level: int = 0   ,
+        indent_level: int = 0,
     ) -> "Cli":
         return cls(
             parent=f"{self._parent} {name}",
@@ -182,13 +185,16 @@ class Cli:
             self._echo(f"\n{intro}")
 
     def _help_header(self) -> None:
-        self._echo(f"\n{self._indent()}<fg=yellow>Usage:</>\n")
-        self._echo(f"{self._indent(1)}{self._parent} <command> [args] [options]\n")
+        print()
+        self._echo("<fg=light_cyan>Usage:</>\n")
         self._echo(
-            f"{self._indent(1)}"
-            "Run any command with the --help option for more information."
+            f"{self._parent} <fg=light_green><command></> <fg=light_yellow>[args]</> [options]\n",
+            "Run any command with the --help option for more information.",
+            "All the options are optional and can be specified in any order.",
+             indentation=1,
         )
-        self._echo(f"\n{self._indent()}<fg=yellow>Available Commands:</>\n")
+        print()
+        self._echo("<fg=light_cyan>Available Commands:</>\n")
 
     def _help_body(self) -> None:
         for name, cmd in self._commands.items():
@@ -206,16 +212,14 @@ class Cli:
         cmd_help = doc.strip().split("\n")[0]
         signature = self._get_signature(name, cmd)
 
-        self._echo(
-            f"{self._indent(1)}{signature}\n"
-            f"{self._indent(4)}{cmd_help}"
-        )
+        self._echo(signature, indentation=1)
+        self._echo(cmd_help, indentation=4)
 
     def _help_command(self, name: str, cmd: t.Callable) -> None:
         signature = self._get_signature(name, cmd)
         doc = textwrap.indent(get_doc(cmd), self._indent())
-
-        self._echo(f"\n{self._indent()}{signature}\n\n{doc}")
+        print()
+        self._echo(f"{signature}\n\n{doc}")
 
     def _get_signature(self, name: str, cmd: t.Callable) -> str:
         parent = " ".join(self._parent.split(" ")[1:])
@@ -225,14 +229,18 @@ class Cli:
         signature = f"{parent}<fg=light_green>{name}</>"
 
         if self._show_params:
-            params = self._get_params(cmd)
-            signature = f"{signature} <fg=dark_gray>{params}</>"
+            args, options = self._get_params(cmd)
+            if args:
+                signature = f"{signature} <fg=light_yellow>{args}</>"
+            if options:
+                signature = f"{signature} <fg=dark_gray>{options}</>"
 
         return signature.strip()
 
-    def _get_params(self, cmd: t.Callable) -> str:
+    def _get_params(self, cmd: t.Callable) -> tuple[str, str]:
         sig = inspect.signature(cmd)
-        params = []
+        args = []
+        options = []
 
         for name, pp in sig.parameters.items():
             if name in ("self", "cls"):
@@ -242,10 +250,10 @@ class Cli:
                 continue
 
             if pp.default is pp.empty:
-                params.append(name)
+                args.append(name)
             elif isinstance(pp.default, bool):
-                params.append(f"[--{name}]")
+                options.append(f"--{name}")
             else:
-                params.append(f"[--{name}={repr(pp.default)}]")
+                options.append(f"--{name}={repr(pp.default)}")
 
-        return " ".join(params)
+        return " ".join(args), " ".join(options)
