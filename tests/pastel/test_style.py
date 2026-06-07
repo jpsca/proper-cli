@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+
 from proper_cli.pastel.style import Style
 
 

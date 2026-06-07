@@ -179,6 +179,15 @@ def test_command_help(get_out_text):
 """
 
 
+def test_get_params_distinguishes_bool_from_int():
+    class C(Cli):
+        def serve(self, host, port=8000, workers=1, debug=False):
+            """serve"""
+
+    cli = C()
+    assert cli._get_params(cli.serve) == "host [--port=8000] [--workers=1] [--debug]"
+
+
 def test_hidden_command_has_help(get_out_text):
     cli = Manager()
     sys.argv = ["manage.py", "_c", "--help"]

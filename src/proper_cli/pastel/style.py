@@ -116,7 +116,7 @@ class Style(object):
         self._foreground = self.FOREGROUND_COLORS[foreground]
 
     def set_background(self, background):
-        if background not in self.FOREGROUND_COLORS:
+        if background not in self.BACKGROUND_COLORS:
             raise ValueError(
                 'Invalid background specified: "{}". Expected one of ({})'.format(
                     background, ", ".join(self.BACKGROUND_COLORS.keys())

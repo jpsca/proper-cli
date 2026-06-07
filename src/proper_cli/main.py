@@ -116,7 +116,6 @@ class Cli:
     # Private
 
     def _run(self, *args, **opts) -> None:
-        cmd = None
         if not args:
             return self._help()
 
@@ -170,7 +169,7 @@ class Cli:
             return self._help_command(name, cmd)
         return cmd(*args, **opts)
 
-    def _help(self, header: bool = True) -> None:
+    def _help(self) -> None:
         self._help_intro()
         self._help_header()
         self._help_body()
@@ -193,8 +192,6 @@ class Cli:
 
     def _help_body(self) -> None:
         for name, cmd in self._commands.items():
-            if name.startswith("_"):
-                continue
             self._help_list_command(name, cmd)
         for name, cls in self._subgroups.items():
             self._help_list_subgroup(name, cls)
@@ -238,9 +235,15 @@ class Cli:
         params = []
 
         for name, pp in sig.parameters.items():
+            if name in ("self", "cls"):
+                continue
+            # Secret parameter
+            if name.startswith("_"):
+                continue
+
             if pp.default is pp.empty:
                 params.append(name)
-            elif pp.default in (True, False):
+            elif isinstance(pp.default, bool):
                 params.append(f"[--{name}]")
             else:
                 params.append(f"[--{name}={repr(pp.default)}]")

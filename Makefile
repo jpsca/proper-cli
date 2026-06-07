@@ -1,20 +1,21 @@
+.PHONY: install
+install:
+	uv sync --all-groups
+	uv run pre-commit install
+
 .PHONY: test
 test:
-	poetry run pytest -x src/proper_cli tests
+	uv run pytest -x src/proper_cli tests
 
 .PHONY: lint
 lint:
-	poetry run ruff check src/proper_cli tests
+	uv run ruff check src/proper_cli tests
+	uv run ty check
+
+.PHONY: lintfix
+lintfix:
+	uv run ruff check src/proper_cli tests --fix
 
 .PHONY: coverage
 coverage:
-	poetry run pytest --cov-config=pyproject.toml --cov-report html --cov proper_cli src/proper_cli tests
-
-.PHONY: types
-types:
-	poetry run pyright src/proper_cli
-
-.PHONY: install
-install:
-	poetry install --with dev,test
-	poetry run pre-commit install
+	uv run pytest --cov-config=pyproject.toml --cov-report html --cov proper_cli src/proper_cli tests

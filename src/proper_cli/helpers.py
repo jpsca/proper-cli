@@ -1,4 +1,5 @@
 import typing as t
+from collections.abc import Sequence
 
 
 def ask(question: str, default: t.Any = None, alternatives: str = "") -> t.Any:
@@ -26,8 +27,8 @@ NO_CHOICES: tuple[str, ...] = ("n", "no", "f", "false", "off", "0")
 def confirm(
     question: str,
     default: bool = False,
-    yes_choices: t.Sequence[str] = YES_CHOICES,
-    no_choices: t.Sequence[str] = NO_CHOICES,
+    yes_choices: Sequence[str] = YES_CHOICES,
+    no_choices: Sequence[str] = NO_CHOICES,
 ) -> bool:
     """Ask a yes/no question via proper_cli.ask() and return their answer.
 

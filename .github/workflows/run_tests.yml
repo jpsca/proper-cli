@@ -6,32 +6,28 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
 jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - name: "Installs dependencies"
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-      - run: ~/.local/share/pypoetry/venv/bin/poetry install --with test
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --group test
       - run: make lint
   tests:
     name: tests
     strategy:
       matrix:
-        python: ["3.9", "3.10", "3.11"]
-      fail-fast: false
+        python: ["3.11", "3.12", "3.13", "3.14", "3.14t"]
+      fail-fast: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: "Installs dependencies"
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-      - run: ~/.local/share/pypoetry/venv/bin/poetry install --with test
+      - run: uv sync --group test
       - run: make test

@@ -11,19 +11,15 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: 3.9
 
-      - name: "Installs poetry"
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-
       - name: "Builds and uploads to PyPI"
         run: |
-          ~/.local/share/pypoetry/venv/bin/poetry build
-          ~/.local/share/pypoetry/venv/bin/poetry publish
+          uv build
+          uv publish
 
         env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.TOKEN_PYPI }}
+          UV_PUBLISH_TOKEN: ${{ secrets.TOKEN_PYPI }}

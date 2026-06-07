@@ -84,6 +84,20 @@ def test_pos_n_flag():
     assert result == expected
 
 
+def test_parse_negative_numbers():
+    result = parse_args(["calc", "-33", "-3.14"])
+    expected = (["calc", "-33", "-3.14"], {})
+    assert result == expected
+
+
+def test_parse_empty_string_arg():
+    result = parse_args([""])
+    assert result == ([""], {})
+
+    result = parse_args(["-f", ""])
+    assert result == ([], {"f": ""})
+
+
 def test_typo_flag():
     result = parse_args(["-abc", "123", "-abc"])
     expected = ([], {"abc": "123"})
