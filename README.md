@@ -174,7 +174,7 @@ The available styles are: **bold** (`b`), __italic__ (`i`), underline (`u`), str
 
 The closing tag `</color>` revokes **all** formatting options established by the last opened tag.
 
-Available colors are:
+Run `proper_cli/colors.py` directly to preview the full palette of available colors in your terminal:
 
 ![](https://raw.githubusercontent.com/jpsca/proper-cli/refs/heads/main/colors1.png)
 ![](https://raw.githubusercontent.com/jpsca/proper-cli/refs/heads/main/colors2.png)
@@ -222,9 +222,6 @@ Cli(
 
 Calling the instance (`cli()`) parses `sys.argv`, dispatches to the matching command or subgroup, and prints the help page when no command is given or `--help` is passed.
 
-### `COLORS` codes
-
-A `dict` mapping color names (e.g. `"green-3"`, `"amber-1"`) to their xterm-256 codes. These names are exactly the values accepted by the `fg:`/`ul:` tags and by `style()`. Run `proper_cli/colors.py` directly to preview the full palette in your terminal.
 
 ## FAQ
 
