@@ -176,8 +176,8 @@ The closing tag `</color>` revokes **all** formatting options established by the
 
 Available colors are:
 
-![](colors1.png)
-![](colors2.png)
+![](https://raw.githubusercontent.com/jpsca/proper-cli/main/colors1.png)
+![](https://raw.githubusercontent.com/jpsca/proper-cli/main/colors2.png)
 
 
 ## Helpers
