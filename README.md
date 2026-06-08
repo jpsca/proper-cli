@@ -197,7 +197,7 @@ Ask a question via input() and return their answer.
 
 Everything below is importable directly from `proper_cli`.
 
-### `Cli`
+### `Cli` class
 
 Base class for a command group. Subclass it; every method and attribute whose name does **not** start with an underscore becomes a command (or a subgroup, if it is itself a `Cli` subclass).
 
@@ -222,22 +222,7 @@ Cli(
 
 Calling the instance (`cli()`) parses `sys.argv`, dispatches to the matching command or subgroup, and prints the help page when no command is given or `--help` is passed.
 
-
-### `colorize(text)`
-
-Return `text` with every `<color …>…</color>` tag replaced by the matching ANSI escape codes. Does nothing — it simply strips the tags — unless the `$COLORTERM` environment variable is set. This is what `echo()` and the help pages use internally.
-
-### `style(*, fg="", ul="", bold=False, italic=False, underline=False, strikeout=False, reverse=False, dim=False)`
-
-Return the raw ANSI escape sequence for a foreground color (`fg`), an underline color (`ul`), and any combination of styles. `fg` and `ul` are keys of `COLORS`. Unlike `colorize()`, this always emits codes; pair it with `RESET` to end the formatting:
-
-```python
-from proper_cli import style, RESET
-
-print(f"{style(fg='green-3', bold=True)}done{RESET}")
-```
-
-### `proper_cli.colors.COLORS`
+### `COLORS` codes
 
 A `dict` mapping color names (e.g. `"green-3"`, `"amber-1"`) to their xterm-256 codes. These names are exactly the values accepted by the `fg:`/`ul:` tags and by `style()`. Run `proper_cli/colors.py` directly to preview the full palette in your terminal.
 
