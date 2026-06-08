@@ -153,52 +153,31 @@ if __name__ == "__main__":
 
 ## Coloring the Output
 
-Whenever you output text, you can surround the text with tags to color its output (thanks to https://github.com/sdispater/pastel).
-This is automatically enabled for the docstrings, but you can also have it by using `proper_cli.echo()`
-as a drop-in replacement of `print()`.
+Whenever you output text, you can surround the text with tags to color its output
+This is automatically enabled for the docstrings, but you can also have it by using `proper_cli.echo()` as a drop-in replacement of `print()`.
 
 ```python
 # green text
-echo("<fg=green>foo</fg=green>")
+echo("<color fg:green-3>foo</color>")
+
+# bold green text
+echo("<color fg:green-3 b>foo</color>")
 
 # black text on a cyan background
-echo("<fg=black;bg=cyan>foo</>")
+echo("<color fg:cyan-1 r>foo</color>")
 
-# bold text on a yellow background
-echo("<bg=yellow;options=bold>foo</>")
+# italic underlined yellow text
+echo("<color fg:yellow-2 iu>foo</color>")
 ```
 
-Available foreground and background colors are: black, red, green, yellow, blue, magenta, cyan and white.
+The available styles are: **bold** (`b`), __italic__ (`i`), underline (`u`), strikeout (`s`), reverse (`r`), and dim (`d`)
 
-The available options are: bold, underscore, blink, reverse and conceal.
+The closing tag `</color>` revokes **all** formatting options established by the last opened tag.
 
-The closing tag can be replaced by `</>`, which revokes all formatting options established by the last opened tag.
+Available colors are:
 
-
-## Custom styles
-
-These four styles are available by default:
-
-```python
-# green text
-echo("<info>foo</info>")
-
-# yellow text
-echo("<comment>foo</comment>")
-
-# black text on a cyan background
-echo("<question>foo</question>")
-
-# white text on a red background
-echo("<error>foo</error>")
-```
-
-It is possible to define your own styles using the `proper_cli.add_style()` method:
-
-```python
-add_style("fire", fg="red", bg="yellow", options=["bold", "blink"])
-echo("<fire>foo</fire>")
-```
+![](colors1.png)
+![](colors2.png)
 
 
 ## Helpers
@@ -214,6 +193,55 @@ Ask a yes/no question via and return their answer.
 Ask a question via input() and return their answer.
 
 
+## API
+
+Everything below is importable directly from `proper_cli`.
+
+### `Cli`
+
+Base class for a command group. Subclass it; every method and attribute whose name does **not** start with an underscore becomes a command (or a subgroup, if it is itself a `Cli` subclass).
+
+```python
+Cli(*, parent="", indent="  ", initial_indent=" ", indent_start=0, show_params=True, **env)
+```
+
+- `parent`: Prefix shown in the generated usage line. Set automatically from `sys.argv[0]` when the instance is called.
+- `indent`, `initial_indent`, `indent_start`: Control the indentation of the help page.
+- `show_params`: When `False`, command arguments and options are omitted from the help page.
+- `**env`: Arbitrary context, stored as the `_env` dict and inherited by subgroups.
+
+Calling the instance (`cli()`) parses `sys.argv`, dispatches to the matching command or subgroup, and prints the help page when no command is given or `--help` is passed.
+
+### `echo(*texts, sep=" ")`
+
+Drop-in replacement for `print()` that renders `<color>` tags (see [Coloring the Output](#coloring-the-output)). Multiple arguments are joined with `sep`.
+
+### `ask(question, default=None, alternatives="")`
+
+Prompt for input via `input()` and return the answer. Returns `default` if the user enters nothing. `alternatives` is shown in brackets after the question (e.g. `"Y/n"`). The question is passed through `colorize()`, so it may contain `<color>` tags.
+
+### `confirm(question, default=False, yes_choices=YES_CHOICES, no_choices=NO_CHOICES)`
+
+Ask a yes/no question via `ask()` and return a `bool`. `YES_CHOICES` defaults to `("y", "yes", "t", "true", "on", "1")` and `NO_CHOICES` to `("n", "no", "f", "false", "off", "0")`.
+
+### `colorize(text)`
+
+Return `text` with every `<color …>…</color>` tag replaced by the matching ANSI escape codes. Does nothing — it simply strips the tags — unless the `$COLORTERM` environment variable is set. This is what `echo()` and the help pages use internally.
+
+### `style(*, fg="", ul="", bold=False, italic=False, underline=False, strikeout=False, reverse=False, dim=False)`
+
+Return the raw ANSI escape sequence for a foreground color (`fg`), an underline color (`ul`), and any combination of styles. `fg` and `ul` are keys of `COLORS`. Unlike `colorize()`, this always emits codes; pair it with `RESET` to end the formatting:
+
+```python
+from proper_cli import style, RESET
+
+print(f"{style(fg='green-3', bold=True)}done{RESET}")
+```
+
+### `COLORS`
+
+A `dict` mapping color names (e.g. `"green-3"`, `"amber-1"`) to their xterm-256 codes. These names are exactly the values accepted by the `fg:`/`ul:` tags and by `style()`. Run `proper_cli/colors.py` directly to preview the full palette in your terminal.
+
 ## FAQ
 
 ### Why don't just use optparse or argparse?
@@ -222,7 +250,7 @@ I find it too verbose.
 
 ### Why don't just use click?
 
-Are you kidding? Because this looks better and is easier to use and understand.
+ABecause this looks better and is easier to use and understand.
 
 ### Why don't just use...?
 

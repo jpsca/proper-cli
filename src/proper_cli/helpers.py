@@ -1,6 +1,8 @@
 import typing as t
 from collections.abc import Sequence
 
+from .colors import colorize
+
 
 def ask(question: str, default: t.Any = None, alternatives: str = "") -> t.Any:
     """Ask a question via input() and return their answer.
@@ -12,6 +14,7 @@ def ask(question: str, default: t.Any = None, alternatives: str = "") -> t.Any:
     """
     ops = alternatives or default
     question += f" [{str(ops)}] " if ops else ""
+    question = colorize(question)
     while True:
         resp = input(question)
         if resp:

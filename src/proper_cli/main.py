@@ -7,12 +7,11 @@ from pathlib import Path
 from signal import SIGTERM, signal
 from sys import stderr
 
-from . import pastel
+from .colors import colorize
 from .parser import parse_args
-from .pastel import add_style  # noqa
 
 
-__all__ = ("echo", "add_style", "Cli")
+__all__ = ("echo", "Cli")
 
 HELP_OPT = "help"
 INDENT = "  "
@@ -20,7 +19,7 @@ INITIAL_INDENT = " "
 
 
 def echo(*texts: str, sep: str = " ") -> None:
-    print(pastel.colorize(sep.join(texts)))
+    print(colorize(sep.join(texts)))
 
 
 def sigterm_handler(*args) -> None:
@@ -50,6 +49,15 @@ def get_doc(cmd: t.Callable) -> str:
     return first + "\n" + textwrap.dedent(rest)
 
 
+DEFAULT_COLORS = {
+    "error": "fg:rose-3 b",
+    "heading": "fg:amber-3",
+    "path": "fg:lime-1",
+    "command": "fg:lime-2",
+    "args": "fg:amber-1",
+    "options": "fg:gray-3",
+}
+
 class Cli:
     _parent: str
     _indent_level: int
@@ -64,6 +72,7 @@ class Cli:
         initial_indent: str = INITIAL_INDENT,
         indent_start: int = 0,
         show_params: bool = True,
+        colors: dict[str, str] | None = None,
         **env,
     ) -> None:
         self._parent = parent
@@ -71,6 +80,7 @@ class Cli:
         self._indent_by = indent
         self._indent_plus = initial_indent
         self._show_params = show_params
+        self._colors = colors or DEFAULT_COLORS
         self._env = env
 
     def __call__(self) -> None:
@@ -107,7 +117,7 @@ class Cli:
             subgroups[name] = cls
         return subgroups
 
-    # Private
+    # ---- Private ----
 
     def _echo(self, *text: str, indentation: int = 0) -> None:
         indent = self._indent(indentation)
@@ -132,7 +142,7 @@ class Cli:
         return self._run_command(name, cmd, args, opts)
 
     def _command_not_found(self, name: str) -> None:
-        self._echo(f"\n<error> Command `{name}` not found </error>")
+        self._echo(f"\n<color {self._colors['error']}> Command `{name}` not found </color>")
         self._help()
 
     def _init_subgroup(
@@ -170,6 +180,12 @@ class Cli:
     ) -> None:
         if HELP_OPT in opts:
             return self._help_command(name, cmd)
+
+        if not self._has_required_params(cmd, *args, **opts):
+            self._echo(f"\n<color {self._colors['error']}>--- Missing required parameters ---</color>")
+            self._help_command(name, cmd)
+            return
+
         return cmd(*args, **opts)
 
     def _help(self) -> None:
@@ -186,15 +202,15 @@ class Cli:
 
     def _help_header(self) -> None:
         print()
-        self._echo("<fg=light_cyan>Usage:</>\n")
+        self._echo(f"<color {self._colors['heading']}>Usage:</color>\n")
         self._echo(
-            f"{self._parent} <fg=light_green><command></> <fg=light_yellow>[args]</> [options]\n",
+            f"{self._parent} <color {self._colors['command']}><command></color> <color {self._colors['args']}>[args]</color> <color {self._colors['options']}>[options]</color>\n",
             "Run any command with the --help option for more information.",
             "All the options are optional and can be specified in any order.",
              indentation=1,
         )
         print()
-        self._echo("<fg=light_cyan>Available Commands:</>\n")
+        self._echo(f"<color {self._colors['heading']}>Available Commands:</color>\n")
 
     def _help_body(self) -> None:
         for name, cmd in self._commands.items():
@@ -224,16 +240,16 @@ class Cli:
     def _get_signature(self, name: str, cmd: t.Callable) -> str:
         parent = " ".join(self._parent.split(" ")[1:])
         if parent:
-            parent = f"<fg=green>{parent}</> "
+            parent = f"<color {self._colors['path']}>{parent}</color> "
 
-        signature = f"{parent}<fg=light_green>{name}</>"
+        signature = f"{parent}<color {self._colors['command']}>{name}</color>"
 
         if self._show_params:
             args, options = self._get_params(cmd)
             if args:
-                signature = f"{signature} <fg=light_yellow>{args}</>"
+                signature = f"{signature} <color {self._colors['args']}>{args}</color>"
             if options:
-                signature = f"{signature} <fg=dark_gray>{options}</>"
+                signature = f"{signature} <color {self._colors['options']}>{options}</color>"
 
         return signature.strip()
 
@@ -257,3 +273,29 @@ class Cli:
                 options.append(f"--{name}={repr(pp.default)}")
 
         return " ".join(args), " ".join(options)
+
+    def _get_required_params(self, cmd: t.Callable) -> list[str]:
+        sig = inspect.signature(cmd)
+        required = []
+
+        for name, pp in sig.parameters.items():
+            if name in ("self", "cls"):
+                continue
+            # Secret parameter
+            if name.startswith("_"):
+                continue
+
+            if pp.default is pp.empty:
+                required.append(name)
+
+        return required
+
+    def _has_required_params(self, cmd: t.Callable, *args, **kwargs) -> bool:
+        required = self._get_required_params(cmd)
+        if not required:
+            return True
+        num_required = len(required)
+        for name in required:
+            if name in kwargs:
+                num_required -= 1
+        return len(args) >= num_required
