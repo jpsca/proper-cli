@@ -2,7 +2,7 @@
 
 Proper CLI is a Python library for creating composable, nestable, and ridiculously good looking command-line-**user**-interfaces from simple classes.
 
-![proper_cli output](https://raw.githubusercontent.com/jpsca/proper-cli/main/output.png)
+![proper_cli output](https://raw.githubusercontent.com/jpsca/proper-cli/refs/heads/main/output.png)
 
 ## Features
 
@@ -176,8 +176,8 @@ The closing tag `</color>` revokes **all** formatting options established by the
 
 Available colors are:
 
-![](https://raw.githubusercontent.com/jpsca/proper-cli/main/colors1.png)
-![](https://raw.githubusercontent.com/jpsca/proper-cli/main/colors2.png)
+![](https://raw.githubusercontent.com/jpsca/proper-cli/refs/heads/main/colors1.png)
+![](https://raw.githubusercontent.com/jpsca/proper-cli/refs/heads/main/colors2.png)
 
 
 ## Helpers
@@ -202,27 +202,26 @@ Everything below is importable directly from `proper_cli`.
 Base class for a command group. Subclass it; every method and attribute whose name does **not** start with an underscore becomes a command (or a subgroup, if it is itself a `Cli` subclass).
 
 ```python
-Cli(*, parent="", indent="  ", initial_indent=" ", indent_start=0, show_params=True, **env)
+Cli(
+    *,
+    parent: str = "",
+    indent: str = "  ",
+    initial_indent: str = " ",
+    indent_start: int = 0,
+    show_params: bool = True,
+    colors: dict[str, str] | None = None,
+    **env,
+)
 ```
 
 - `parent`: Prefix shown in the generated usage line. Set automatically from `sys.argv[0]` when the instance is called.
 - `indent`, `initial_indent`, `indent_start`: Control the indentation of the help page.
 - `show_params`: When `False`, command arguments and options are omitted from the help page.
+- `colors`: A dict mapping the components of the help page to color strings, i.e.: `"command": "fg:lime-2"`.
 - `**env`: Arbitrary context, stored as the `_env` dict and inherited by subgroups.
 
 Calling the instance (`cli()`) parses `sys.argv`, dispatches to the matching command or subgroup, and prints the help page when no command is given or `--help` is passed.
 
-### `echo(*texts, sep=" ")`
-
-Drop-in replacement for `print()` that renders `<color>` tags (see [Coloring the Output](#coloring-the-output)). Multiple arguments are joined with `sep`.
-
-### `ask(question, default=None, alternatives="")`
-
-Prompt for input via `input()` and return the answer. Returns `default` if the user enters nothing. `alternatives` is shown in brackets after the question (e.g. `"Y/n"`). The question is passed through `colorize()`, so it may contain `<color>` tags.
-
-### `confirm(question, default=False, yes_choices=YES_CHOICES, no_choices=NO_CHOICES)`
-
-Ask a yes/no question via `ask()` and return a `bool`. `YES_CHOICES` defaults to `("y", "yes", "t", "true", "on", "1")` and `NO_CHOICES` to `("n", "no", "f", "false", "off", "0")`.
 
 ### `colorize(text)`
 
@@ -238,7 +237,7 @@ from proper_cli import style, RESET
 print(f"{style(fg='green-3', bold=True)}done{RESET}")
 ```
 
-### `COLORS`
+### `proper_cli.colors.COLORS`
 
 A `dict` mapping color names (e.g. `"green-3"`, `"amber-1"`) to their xterm-256 codes. These names are exactly the values accepted by the `fg:`/`ul:` tags and by `style()`. Run `proper_cli/colors.py` directly to preview the full palette in your terminal.
 
