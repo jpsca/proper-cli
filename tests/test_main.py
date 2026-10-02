@@ -192,6 +192,45 @@ def test_get_params_distinguishes_bool_from_int():
     assert cli._get_params(cli.serve) == ("host", "--port=8000 --workers=1 --debug")
 
 
+class Generators(Cli):
+    def model(self, name, *attrs, force=False, **options):
+        """MODEL"""
+        print("model", name, attrs, force, options)
+
+
+def test_variable_arguments_are_not_required(get_out_text):
+    """Regression: a command with `*args` couldn't run without them."""
+    cli = Generators()
+    sys.argv = ["manage.py", "model", "Post"]
+    cli()
+
+    assert get_out_text() == "model Post () False {}\n"
+
+
+def test_variable_arguments_are_passed(get_out_text):
+    cli = Generators()
+    sys.argv = ["manage.py", "model", "Post", "title:str", "body:text", "--force"]
+    cli()
+
+    assert get_out_text() == "model Post ('title:str', 'body:text') True {}\n"
+
+
+def test_missing_argument_before_the_variable_ones(get_out_text):
+    cli = Generators()
+    sys.argv = ["manage.py", "model"]
+    cli()
+
+    out = get_out_text()
+    assert "Missing required parameters" in out
+    assert "model name [attrs...] --force" in out
+
+
+def test_get_params_with_variable_arguments():
+    cli = Generators()
+    assert cli._get_required_params(cli.model) == ["name"]
+    assert cli._get_params(cli.model) == ("name [attrs...]", "--force")
+
+
 def test_hidden_command_has_help(get_out_text):
     cli = Manager()
     sys.argv = ["manage.py", "_c", "--help"]

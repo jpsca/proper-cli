@@ -265,7 +265,11 @@ class Cli:
             if name.startswith("_"):
                 continue
 
-            if pp.default is pp.empty:
+            if pp.kind is pp.VAR_KEYWORD:
+                continue
+            if pp.kind is pp.VAR_POSITIONAL:
+                args.append(f"[{name}...]")
+            elif pp.default is pp.empty:
                 args.append(name)
             elif isinstance(pp.default, bool):
                 options.append(f"--{name}")
@@ -283,6 +287,10 @@ class Cli:
                 continue
             # Secret parameter
             if name.startswith("_"):
+                continue
+
+            # `*args` and `**kwargs` take zero or more values
+            if pp.kind in (pp.VAR_POSITIONAL, pp.VAR_KEYWORD):
                 continue
 
             if pp.default is pp.empty:
